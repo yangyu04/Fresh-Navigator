@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en"> 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-en="Fresh Nav Hub" data-zh="清新导航站">Fresh Nav Hub</title>
+    <style>
+        :root {
+            /* 浅色模式（Light Mode）: 清爽薄荷绿与灰蓝 */
+            --bg-color: #f7fcfc; 
+            --sidebar-bg: #ffffff; 
+            --text-color: #385073; 
+            --secondary-text: #708090; 
+            --accent-color: #4CAF50; /* 强调色：清新薄荷绿 */
+            --hover-bg: #e6f7f5; 
+            --search-bg: #ffffff; 
+            --border-color: #e0e6f0; 
+            --shadow-light: rgba(76, 175, 80, 0.1); 
+            --shadow-heavy: rgba(56, 80, 115, 0.15); 
+            --active-category-bg: #e6f7f5; 
+            --header-offset: 80px; 
+        }
+
+        /* 深色模式（Dark Mode） */
+        .dark-mode {
+            --bg-color: #1a2332;
+            --sidebar-bg: #232d3d;
+            --text-color: #e3f2fd;
+            --secondary-text: #a0aec0;
+            --accent-color: #66BB6A; 
+            --hover-bg: #303e51;
+            --search-bg: #303b4b; 
+            --border-color: #4a5568;
+            --shadow-light: rgba(102, 187, 106, 0.1);
+            --shadow-heavy: rgba(0, 0, 0, 0.4);
+            --active-category-bg: #303e51;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.4s, color 0.4s;
+            display: flex;
+            height: 100vh;
+            overflow: hidden; 
+        }
+
+        .main-container {
+            display: flex;
+            width: 100%;
+        }
+
+        /* --- 侧边栏 (Sidebar) --- */
+        .sidebar {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            box-shadow: 4px 0 15px var(--shadow-light);
+            padding: 30px 0;
+            overflow-y: auto;
+            flex-shrink: 0;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .sidebar h1 {
+            font-size: 1.8em;
+            text-align: center;
+            margin: 0 0 40px 0;
+            color: var(--text-color);
+            font-weight: 800;
+        }
+        
+        .category-list { list-style: none; padding: 0; margin: 0; }
+        .category-item { 
+            cursor: pointer; padding: 15px 30px; font-size: 1.05em; 
+            color: var(--secondary-text); border-left: 4px solid transparent; 
+            transition: all 0.3s ease; 
+        }
+        .category-item:hover { 
+            background-color: var(--hover-bg); color: var(--text-color); 
+            border-left-color: var(--accent-color); 
+        }
+        .category-item.active { 
+            color: var(--accent-color); background-color: var(--active-category-bg); 
+            border-left-color: var(--accent-color); font-weight: 700; 
+        }
+
+        /* --- 主内容区 (Main Content) --- */
+        .content {
+            flex-grow: 1;
+            padding: 30px 50px;
+            overflow-y: auto; 
+            scroll-behavior: smooth; 
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* 顶部控制区 */
+        header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            flex-shrink: 0; 
+            padding-right: 20px; 
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        /* 搜索容器 (用于居中) */
+        .search-container {
+            width: 100%;
+            display: flex;
+            justify-content: center; 
+            margin-bottom: 30px;
+        }
+        
+        #search-input {
+            padding: 12px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background-color: var(--search-bg);
+            color: var(--text-color);
+            width: 60%; 
+            max-width: 500px;
+            font-size: 1em;
+            box-shadow: 0 4px 8px var(--shadow-light);
+            transition: all 0.3s;
+        }
+
+        /* 圆形图标按钮样式 (统一风格) */
+        .round-icon-button {
+            background: var(--sidebar-bg); border: 1px solid var(--border-color);
+            border-radius: 50%; color: var(--text-color); cursor: pointer;
+            padding: 10px; font-size: 1.2em; width: 45px; height: 45px;
+            box-shadow: 0 4px 8px var(--shadow-light); transition: all 0.3s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .round-icon-button:hover {
+            background-color: var(--hover-bg); transform: scale(1.05);
+        }
+
+        /* 链接展示区 */
+        .category-section {
+            padding-bottom: 50px;
+        }
+        
+        .category-section h2 {
+            font-size: 2.5em;
+            margin: 40px 0 25px 0; 
+            color: var(--text-color);
+            font-weight: 700;
+            /* 修复 2: 恢复标题分隔线 */
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            
+            padding-top: 10px;
+            scroll-margin-top: var(--header-offset); 
+        }
+        
+        /* 链接卡片网格布局 */
+        .link-grid {
+            /* 修复 1: 恢复网格布局 */
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px; 
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .link-grid li {
+            /* 修复 1: 恢复卡片样式 */
+            background-color: var(--sidebar-bg);
+            border-radius: 16px;
+            box-shadow: 0 8px 20px var(--shadow-heavy);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .link-grid li:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px var(--shadow-heavy);
+        }
+        
+        .link-grid a {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            height: 100%;
+        }
+
+        .link-title { 
+            font-weight: 700; font-size: 1.2em; color: var(--accent-color); 
+            margin-bottom: 5px; display: flex; align-items: center; 
+        }
+        .link-icon { 
+            font-size: 1.2em; margin-right: 10px; flex-shrink: 0; 
+            color: var(--accent-color); 
+        }
+        .link-text {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        
+        .link-url {
+            font-size: 0.9em;
+            color: var(--secondary-text);
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        /* 移动端优化 */
+        @media (max-width: 950px) {
+            .content { padding: 20px; overflow-y: visible; }
+            header { padding-right: 0; }
+            .search-container { order: 1; margin-bottom: 15px; } 
+            #search-input { width: 100%; }
+            .header-controls { order: 2; width: auto; }
+            .link-grid { gap: 15px; } 
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <div class="main-container">
+        <nav class="sidebar">
+            <h1 data-en="Fresh Navigator" data-zh="清新导航">Fresh Navigator</h1>
+            <ul class="category-list" id="category-list">
+                <li class="category-item" data-id="tools" data-target="#section-tools" data-en="🚀 Essential Tools" data-zh="🚀 常用工具">🚀 Essential Tools</li>
+                <li class="category-item" data-id="code" data-target="#section-code" data-en="💻 Coding & Dev" data-zh="💻 编程开发">💻 编程开发</li>
+                <li class="category-item" data-id="design" data-target="#section-design" data-en="🎨 Design Resources" data-zh="🎨 设计资源">🎨 Design Resources</li>
+                <li class="category-item" data-id="ai" data-target="#section-ai" data-en="💡 AI & Efficiency" data-zh="💡 AI & 效率">💡 AI & Efficiency</li>
+                <li class="category-item" data-id="reading" data-target="#section-reading" data-en="📚 Deep Reading" data-zh="📚 深度阅读">📚 Deep Reading</li>
+            </ul>
+        </nav>
+
+        <div class="content" id="main-content">
+            <header>
+                <div></div>
+                <div class="header-controls">
+                    <button id="lang-toggle" class="round-icon-button" title="Toggle Language">🌐</button>
+                    <button id="theme-toggle" class="round-icon-button" title="Toggle Theme">🌓</button>
+                </div>
+            </header>
+            
+            <div class="search-container">
+                <input type="text" id="search-input" data-en="Search links across all categories..." data-zh="输入关键词搜索所有分类下的链接..." placeholder="Search links across all categories...">
+            </div>
+
+            <div class="link-display">
+                
+                <section class="category-section" id="section-tools" data-id="tools">
+                    <h2 data-en="Essential Tools" data-zh="常用工具">Essential Tools</h2>
+                    <ul class="link-grid">
+                        <li><a href="https://www.google.com/" target="_blank">
+                            <div class="link-title"><span class="link-icon">🔎</span> <span class="link-text" data-en="Google Search" data-zh="Google 搜索">Google Search</span></div>
+                            <div class="link-url" data-en="Fast global search" data-zh="全球最快搜索">Fast global search</div>
+                        </a></li>
+                        <li><a href="https://mail.google.com/" target="_blank">
+                            <div class="link-title"><span class="link-icon">📧</span> <span class="link-text" data-en="Gmail Mailbox" data-zh="Gmail 邮箱">Gmail Mailbox</span></div>
+                            <div class="link-url" data-en="Professional personal/team email" data-zh="专业的个人/团队邮箱">Professional personal/team email</div>
+                        </a></li>
+                        <li><a href="https://www.cloudflare.com/" target="_blank">
+                            <div class="link-title"><span class="link-icon">☁️</span> <span class="link-text" data-en="Cloudflare" data-zh="Cloudflare">Cloudflare</span></div>
+                            <div class="link-url" data-en="Global CDN and security" data-zh="全球 CDN 与网络安全">Global CDN and security</div>
+                        </a></li>
+                        <li><a href="https://translate.google.com/" target="_blank">
+                            <div class="link-title"><span class="link-icon">🌐</span> <span class="link-text" data-en="Google Translate" data-zh="谷歌翻译">Google Translate</span></div>
+                            <div class="link-url" data-en="Multilingual translation tool" data-zh="多语言翻译工具">Multilingual translation tool</div>
+                        </a></li>
+                    </ul>
+                </section>
+
+                <section class="category-section" id="section-code" data-id="code">
+                    <h2 data-en="Coding & Development" data-zh="编程开发">Coding & Development</h2>
+                    <ul class="link-grid">
+                        <li><a href="https://github.com/" target="_blank">
+                            <div class="link-title"><span class="link-icon">🐙</span> <span class="link-text" data-en="GitHub" data-zh="GitHub">GitHub</span></div>
+                            <div class="link-url" data-en="Code hosting and collaboration" data-zh="代码托管与协作">Code hosting and collaboration</div>
+                        </a></li>
+                        <li><a href="https://developer.mozilla.org/zh-CN/docs/Web" target="_blank">
+                            <div class="link-title"><span class="link-icon">📜</span> <span class="link-text" data-en="MDN Web Docs" data-zh="MDN Web 文档">MDN Web Docs</span></div>
+                            <div class="link-url" data-en="Authoritative Web tech reference" data-zh="最权威的 Web 技术参考">Authoritative Web tech reference</div>
+                        </a></li>
+                        <li><a href="https://react.dev/" target="_blank">
+                            <div class="link-title"><span class="link-icon">⚛️</span> <span class="link-text" data-en="React.js" data-zh="React.js">React.js</span></div>
+                            <div class="link-url" data-en="Library for building UIs" data-zh="构建用户界面的库">Library for building UIs</div>
+                        </a></li>
+                    </ul>
+                </section>
+                
+                <section class="category-section" id="section-design" data-id="design">
+                    <h2 data-en="Design Resources" data-zh="设计资源">Design Resources</h2>
+                    <ul class="link-grid">
+                        <li><a href="https://www.figma.com/" target="_blank">
+                            <div class="link-title"><span class="link-icon">🖌️</span> <span class="link-text" data-en="Figma" data-zh="Figma">Figma</span></div>
+                            <div class="link-url" data-en="Collaborative interface design tool" data-zh="协作式界面设计工具">Collaborative interface design tool</div>
+                        </a></li>
+                        <li><a href="https://unsplash.com/" target="_blank">
+                            <div class="link-title"><span class="link-icon">📸</span> <span class="link-text" data-en="Unsplash" data-zh="Unsplash">Unsplash</span></div>
+                            <div class="link-url" data-en="Free high-resolution photo library" data-zh="免费高清图片素材库">Free high-resolution photo library</div>
+                        </a></li>
+                        <li><a href="https://coolors.co/" target="_blank">
+                            <div class="link-title"><span class="link-icon">🌈</span> <span class="link-text" data-en="Coolors" data-zh="Coolors">Coolors</span></div>
+                            <div class="link-url" data-en="Fast color scheme generator" data-zh="超快配色方案生成器">Fast color scheme generator</div>
+                        </a></li>
+                    </ul>
+                </section>
+                
+                <section class="category-section" id="section-ai" data-id="ai">
+                    <h2 data-en="AI & Productivity" data-zh="AI & 效率">AI & Productivity</h2>
+                    <ul class="link-grid">
+                        <li><a href="#" target="_blank">
+                            <div class="link-title"><span class="link-icon">🧠</span> <span class="link-text" data-en="ChatGPT / GPTs" data-zh="ChatGPT / GPTs">ChatGPT / GPTs</span></div>
+                            <div class="link-url" data-en="OpenAI's advanced language models" data-zh="OpenAI 的高级语言模型">OpenAI's advanced language models</div>
+                        </a></li>
+                        <li><a href="#" target="_blank">
+                            <div class="link-title"><span class="link-icon">📝</span> <span class="link-text" data-en="Notion" data-zh="Notion">Notion</span></div>
+                            <div class="link-url" data-en="All-in-one workspace" data-zh="一体化的工作空间">All-in-one workspace</div>
+                        </a></li>
+                    </ul>
+                </section>
+                
+                <section class="category-section" id="section-reading" data-id="reading">
+                    <h2 data-en="Deep Reading" data-zh="深度阅读">Deep Reading</h2>
+                    <ul class="link-grid">
+                        <li><a href="https://www.hacker-news.com/" target="_blank">
+                            <div class="link-title"><span class="link-icon">📰</span> <span class="link-text" data-en="Hacker News" data-zh="Hacker News">Hacker News</span></div>
+                            <div class="link-url" data-en="Tech and startup news" data-zh="科技与创业资讯">Tech and startup news</div>
+                        </a></li>
+                        <li><a href="https://juejin.cn/" target="_blank">
+                            <div class="link-title"><span class="link-icon">🔥</span> <span class="link-text" data-en="Juejin" data-zh="稀土掘金">Juejin</span></div>
+                            <div class="link-url" data-en="Chinese developer community" data-zh="中文开发者技术社区">Chinese developer community</div>
+                        </a></li>
+                    </ul>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JS 变量和 DOM 元素定义
+        const langToggle = document.getElementById('lang-toggle');
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+        const categoryList = document.getElementById('category-list');
+        const categoryItems = document.querySelectorAll('.category-item');
+        const mainContent = document.getElementById('main-content');
+        const allSections = document.querySelectorAll('.category-section');
+        const searchInput = document.getElementById('search-input');
+        
+        let currentLang = document.documentElement.lang || 'en';
+        let isScrollingByClick = false; 
+
+        // --- 1. 语言切换 ---
+        const setLanguage = (lang) => {
+            currentLang = lang;
+            document.documentElement.lang = lang;
+            
+            document.querySelectorAll('[data-en]').forEach(el => {
+                const enText = el.getAttribute('data-en');
+                const zhText = el.getAttribute('data-zh');
+                
+                let newText = (lang === 'zh') ? (zhText || enText) : enText;
+
+                if (el.tagName === 'INPUT' && el.type === 'text') {
+                    el.placeholder = newText;
+                } else {
+                    const linkTextSpan = el.querySelector('.link-text');
+                    if (linkTextSpan) {
+                         const textEn = linkTextSpan.getAttribute('data-en');
+                         const textZh = linkTextSpan.getAttribute('data-zh');
+                         linkTextSpan.textContent = (lang === 'zh') ? (textZh || textEn) : textEn;
+                    } else {
+                        el.textContent = newText;
+                    }
+                }
+            });
+            
+            document.getElementById('search-input').placeholder = currentLang === 'zh' 
+                ? document.getElementById('search-input').getAttribute('data-zh') 
+                : document.getElementById('search-input').getAttribute('data-en');
+        };
+        
+        setLanguage('en');
+        langToggle.addEventListener('click', () => {
+            const newLang = currentLang === 'en' ? 'zh' : 'en';
+            setLanguage(newLang);
+        });
+
+
+        // --- 2. 主题切换 ---
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            body.className = savedTheme;
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            body.className = 'dark-mode';
+        } else {
+            body.className = 'light-mode';
+        }
+        
+        const updateThemeIcon = () => {
+             themeToggle.textContent = body.classList.contains('dark-mode') ? '☀️' : '🌓';
+        };
+
+        themeToggle.addEventListener('click', () => {
+            const isDarkMode = body.classList.contains('dark-mode');
+            const newTheme = isDarkMode ? 'light-mode' : 'dark-mode';
+            body.className = newTheme;
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon();
+        });
+        updateThemeIcon();
+
+
+        // --- 3. 侧边栏切换 (平滑滚动) ---
+        document.querySelector('.category-item[data-id="tools"]').classList.add('active');
+
+
+        categoryList.addEventListener('click', (e) => {
+            const item = e.target.closest('.category-item');
+            if (!item) return;
+
+            const targetSelector = item.getAttribute('data-target');
+            const targetElement = document.querySelector(targetSelector);
+
+            if (targetElement) {
+                isScrollingByClick = true; 
+                
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start' 
+                });
+                
+                categoryItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                
+                setTimeout(() => {
+                    isScrollingByClick = false;
+                }, 700); 
+            }
+        });
+        
+        // --- 4. 滚动侦测 (ScrollSpy) ---
+        mainContent.addEventListener('scroll', () => {
+            if (isScrollingByClick) return; 
+            
+            const headerOffset = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-offset'));
+            let currentActiveId = null;
+
+            allSections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                
+                if (rect.top >= 0 && rect.top < headerOffset * 2) { 
+                    currentActiveId = section.getAttribute('data-id');
+                }
+            });
+
+            if (currentActiveId) {
+                categoryItems.forEach(i => i.classList.remove('active'));
+                const targetItem = document.querySelector(`.category-item[data-id="${currentActiveId}"]`);
+                if (targetItem) {
+                    targetItem.classList.add('active');
+                }
+            } else if (mainContent.scrollTop === 0) {
+                categoryItems.forEach(i => i.classList.remove('active'));
+                document.querySelector('.category-item[data-id="tools"]').classList.add('active');
+            }
+        });
+
+
+        // --- 5. 链接搜索功能 ---
+        searchInput.addEventListener('keyup', (e) => {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            
+            allSections.forEach(section => {
+                let sectionHasVisibleLinks = false;
+                
+                const links = section.querySelectorAll('.link-grid li');
+                links.forEach(li => {
+                    const titleElement = li.querySelector('.link-text'); 
+                    const urlElement = li.querySelector('.link-url');
+
+                    const title = titleElement ? titleElement.textContent.toLowerCase() : '';
+                    const url = urlElement ? urlElement.textContent.toLowerCase() : '';
+
+                    if (title.includes(searchTerm) || url.includes(searchTerm)) {
+                        li.style.display = 'block';
+                        sectionHasVisibleLinks = true;
+                    } else {
+                        li.style.display = 'none';
+                    }
+                });
+                
+                if (searchTerm === '' || sectionHasVisibleLinks) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+            
+            if (searchTerm === '') {
+                categoryItems.forEach(i => i.classList.remove('active'));
+                document.querySelector('.category-item[data-id="tools"]').classList.add('active');
+                mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+    </script>
+</body>
+</html>
